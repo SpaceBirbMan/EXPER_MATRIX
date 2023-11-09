@@ -63,7 +63,7 @@ public:
 	}
 
 	//пустой конструктор
-	matrix();
+	matrix() {}
 
 	//оператор получения значения по индексу
 	T& operator () (int row, int col = -1)
