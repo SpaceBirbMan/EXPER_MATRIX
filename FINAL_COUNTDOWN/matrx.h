@@ -6,6 +6,7 @@
 #include <random>
 #include <iomanip>
 #include <time.h>
+#include <typeinfo>
 
 template <typename T>
 T GetRandomNumber(T min, T max)
@@ -222,7 +223,7 @@ public:
 			M[i + col][i + row] = scalar;
 	}
 	//делает обратную матрицу
-	void inverse()
+	void inverse() //начато, скопируй с другого файла
 	{}
 	//транспонирование
 	void transpond()
@@ -246,7 +247,17 @@ public:
 		M.resize(new_row, std::vector<T>(new_col));
 	}
 
+	void determinant()
+	{
+		T a = 0;
+		std::string tp = typeid(T).name();
+		if (tp == "int" || tp == "float" || tp == "double" || tp == "long" || tp == "short")
+		{
+		}
+		else throw 1;
+	}
 	//todo: определители, собственные значения
+	//imp: в другом файле написано про проверку невырожденности
 
 	~matrix() {}
 };
