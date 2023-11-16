@@ -3,7 +3,8 @@
 
 int main()
 {
-	matrix <int> G(1,1);
+	matrix <long long> G(1,1);
 	std::cout << G;
-
+	try { G.determinant(); }
+	catch (...) { std::cout << "wrong type. unable to calculate determinant"; }
 }

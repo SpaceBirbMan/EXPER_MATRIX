@@ -26,43 +26,43 @@ namespace nonstd
 		}
 	}
 
-	//Класс матрицы
+	//ГЉГ«Г Г±Г± Г¬Г ГІГ°ГЁГ¶Г»
 	template <typename T>
 	class matrix
 	{
 
 	private:
-		std::vector<std::vector<T>> M; // Матрица элементов типа Т
+		std::vector<std::vector<T>> M; // ГЊГ ГІГ°ГЁГ¶Г  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў ГІГЁГЇГ  Г’
 
-		//unsigned int row_count = 0; // Количество строк
-		//unsigned int col_count = 0; // Количество столбцов
+		//unsigned int row_count = 0; // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
+		//unsigned int col_count = 0; // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
 
 	public:
 
-		//получить количество строк
+		//ГЇГ®Г«ГіГ·ГЁГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
 		unsigned int get_row_count() const { if (M.empty()) return 0; else return M.size(); }
-		//получить количество столбцов
+		//ГЇГ®Г«ГіГ·ГЁГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
 		unsigned int get_col_count() const 
 		{
 			if (M.empty()) 
-				return 0; // Матрица пуста, поэтому столбцов нет
-			return M[0].size(); // Возвращаем количество элементов в первой строке
+				return 0; // ГЊГ ГІГ°ГЁГ¶Г  ГЇГіГ±ГІГ , ГЇГ®ГЅГІГ®Г¬Гі Г±ГІГ®Г«ГЎГ¶Г®Гў Г­ГҐГІ
+			return M[0].size(); // Г‚Г®Г§ГўГ°Г Г№Г ГҐГ¬ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Гў ГЇГҐГ°ГўГ®Г© Г±ГІГ°Г®ГЄГҐ
 		}
 	
-		//получить матрицу
+		//ГЇГ®Г«ГіГ·ГЁГІГј Г¬Г ГІГ°ГЁГ¶Гі
 		
-		//задать количество строк
+		//Г§Г Г¤Г ГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
 		void set_row_count(unsigned const& row)
 		{
 			if (row > 0) M.resize(row, std::vector<T>(get_col_count())); else throw "row < 0";
 		}
-		//задать количество столбцов
+		//Г§Г Г¤Г ГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
 		void set_col_count(unsigned const& col)
 		{
 			if (col > 0) M.resize(get_row_count(), std::vector<T>(col)); else throw "col < 0";
 		}
 
-		//конструктор матрицы
+		//ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г° Г¬Г ГІГ°ГЁГ¶Г»
 		matrix(unsigned int rows, unsigned int cols)
 		{
 			M.resize(rows, std::vector<T>(cols));
@@ -72,24 +72,24 @@ namespace nonstd
 		{
 			M.resize(size, std::vector<T>(1));
 		}
-		//пустой конструктор
+		//ГЇГіГ±ГІГ®Г© ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г°
 		matrix() {}
-		// Конструктор из двумерного списка
+		// ГЉГ®Г­Г±ГІГ°ГіГЄГІГ®Г° ГЁГ§ Г¤ГўГіГ¬ГҐГ°Г­Г®ГЈГ® Г±ГЇГЁГ±ГЄГ 
 		matrix(const std::vector<std::vector<T>>& values) : M(values) {}
-		//оператор получения значения по индексу
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГЇГ®Г«ГіГ·ГҐГ­ГЁГї Г§Г­Г Г·ГҐГ­ГЁГї ГЇГ® ГЁГ­Г¤ГҐГЄГ±Гі
 		T& operator () (int row, int col = -1)
 		{
-			//todo: проверка на правильный col,row > 0
+			//todo: ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГЇГ°Г ГўГЁГ«ГјГ­Г»Г© col,row > 0
 			if (col > -1) return this->M[row][col];
 			else return this->M[row][0];
 		}
-		//дополнение под оператор скобок
+		//Г¤Г®ГЇГ®Г«Г­ГҐГ­ГЁГҐ ГЇГ®Г¤ Г®ГЇГҐГ°Г ГІГ®Г° Г±ГЄГ®ГЎГ®ГЄ
 		const T& operator () (int row, int col = -1) const
 		{
 			if (col > -1) return this->M[row][col];
 			else return this->M[row][0];
 		}
-		//оператор присваивания
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГЇГ°ГЁГ±ГўГ ГЁГўГ Г­ГЁГї
 		matrix& operator = (const matrix& R)
 		{
 			if (&R != this && this->get_row_count() >= R.get_row_count() && this->get_col_count() >= R.get_col_count())
@@ -103,7 +103,7 @@ namespace nonstd
 			else { throw "INCOMPATBLE_MATRICES"; abort; }
 			return *this;
 		}
-		//оператор умножения на скаляр
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГіГ¬Г­Г®Г¦ГҐГ­ГЁГї Г­Г  Г±ГЄГ Г«ГїГ°
 		matrix& operator* (const T scalar)
 		{
 			for (int i = 0; i < get_row_count(); i++)
@@ -111,7 +111,7 @@ namespace nonstd
 					M[i][j] = scalar * M[i][j];
 			return *this;
 		}
-		//оператор умножения на матрицу
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГіГ¬Г­Г®Г¦ГҐГ­ГЁГї Г­Г  Г¬Г ГІГ°ГЁГ¶Гі
 		matrix& operator* (matrix& I)
 		{
 			if (this->col_count != I.get_row_count()) {
@@ -132,7 +132,7 @@ namespace nonstd
 			}
 			return result;
 		}
-		//оператор деления на скаляр
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г¤ГҐГ«ГҐГ­ГЁГї Г­Г  Г±ГЄГ Г«ГїГ°
 		matrix& operator/ (const T scalar)
 		{
 			for (int i = 0; i < get_row_count(); i++)
@@ -140,12 +140,12 @@ namespace nonstd
 					M[i][j] = M[i][j] / scalar;
 			return *this;
 		}
-		//оператор деления на матрицу
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г¤ГҐГ«ГҐГ­ГЁГї Г­Г  Г¬Г ГІГ°ГЁГ¶Гі
 		matrix& operator/ (matrix& I)
 		{
 			return *this;
 		}
-		//оператор вычитания одной матрицы из другой
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГўГ»Г·ГЁГІГ Г­ГЁГї Г®Г¤Г­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» ГЁГ§ Г¤Г°ГіГЈГ®Г©
 		matrix& operator- (matrix& I)
 		{
 			for (int i = 0; i < get_row_count(); i++)
@@ -153,7 +153,7 @@ namespace nonstd
 					M[i][j] = M[i][j] - I(i, j);
 			return *this;
 		}
-		//оператор заполнения всей матрицы одним элементом
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г§Г ГЇГ®Г«Г­ГҐГ­ГЁГї ГўГ±ГҐГ© Г¬Г ГІГ°ГЁГ¶Г» Г®Г¤Г­ГЁГ¬ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Г¬
 		void operator << (T inp)
 		{
 			for (int i = 0; i < get_row_count(); i++)
@@ -162,26 +162,26 @@ namespace nonstd
 			return;
 		}
 
-		//Возвращает столбец из матрицы //проверка
+		//Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ Г±ГІГ®Г«ГЎГҐГ¶ ГЁГ§ Г¬Г ГІГ°ГЁГ¶Г» //ГЇГ°Г®ГўГҐГ°ГЄГ 
 		matrix& col_copy(unsigned col)
 		{
-			matrix<T> result(get_row_count(), 1); // Создаем новый объект matrix
+			matrix<T> result(get_row_count(), 1); // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© Г®ГЎГєГҐГЄГІ matrix
 			for (int i = 0; i < get_row_count(); i++) {
 				result(i, 0) = M[i][col];
 			}
 			return result;
 		}
-		//Возвращает строку из матрицы //проверка
+		//Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ Г±ГІГ°Г®ГЄГі ГЁГ§ Г¬Г ГІГ°ГЁГ¶Г» //ГЇГ°Г®ГўГҐГ°ГЄГ 
 		matrix& row_copy(unsigned row)
 		{
-			matrix<T> result(1, get_col_count()); // Создаем новый объект matrix
+			matrix<T> result(1, get_col_count()); // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© Г®ГЎГєГҐГЄГІ matrix
 			for (int j = 0; j < get_col_count(); j++) {
 				result(0, j) = M[row][j];
 			}
 			return result;
 		}
 
-		//рандомайзер матрицы
+		//Г°Г Г­Г¤Г®Г¬Г Г©Г§ГҐГ° Г¬Г ГІГ°ГЁГ¶Г»
 		void randomize(T min, T max)
 		{
 			for (int i = 0; i < get_row_count(); i++)
@@ -192,13 +192,13 @@ namespace nonstd
 				}
 			}
 		}
-		//более гикий рандомайзер матрицы
+		//ГЎГ®Г«ГҐГҐ ГЈГЁГЄГЁГ© Г°Г Г­Г¤Г®Г¬Г Г©Г§ГҐГ° Г¬Г ГІГ°ГЁГ¶Г»
 		void randomize_advanced(T min, T max) 
 		{ for (int i = 0; i < get_row_count(); i++) 
 			for (int j = 0; j < get_col_count(); j++) 
 				M[i][j] = GetRandomNumber(min, max); 
 		}
-		//выводит в строку массив/матрицу
+		//ГўГ»ГўГ®Г¤ГЁГІ Гў Г±ГІГ°Г®ГЄГі Г¬Г Г±Г±ГЁГў/Г¬Г ГІГ°ГЁГ¶Гі
 		std::string to_string()
 		{
 			std::string data = "";
@@ -207,12 +207,12 @@ namespace nonstd
 				{
 					for (int j = 0; j < get_col_count(); j++)
 						data = data + " " + std::to_string(M[i][j]);
-					data = data + "\n"; //перенос строки для создания новвой строки матрицы
+					data = data + "\n"; //ГЇГҐГ°ГҐГ­Г®Г± Г±ГІГ°Г®ГЄГЁ Г¤Г«Гї Г±Г®Г§Г¤Г Г­ГЁГї Г­Г®ГўГўГ®Г© Г±ГІГ°Г®ГЄГЁ Г¬Г ГІГ°ГЁГ¶Г»
 				}
 			}
-			return data; //если нам надо куда-то вывести строку
+			return data; //ГҐГ±Г«ГЁ Г­Г Г¬ Г­Г Г¤Г® ГЄГіГ¤Г -ГІГ® ГўГ»ГўГҐГ±ГІГЁ Г±ГІГ°Г®ГЄГі
 		}
-		//антиноль на диагонали (меняет строки местами для дальнейшей работы)
+		//Г Г­ГІГЁГ­Г®Г«Гј Г­Г  Г¤ГЁГ ГЈГ®Г­Г Г«ГЁ (Г¬ГҐГ­ГїГҐГІ Г±ГІГ°Г®ГЄГЁ Г¬ГҐГ±ГІГ Г¬ГЁ Г¤Г«Гї Г¤Г Г«ГјГ­ГҐГ©ГёГҐГ© Г°Г ГЎГ®ГІГ»)
 		void diag_antizero(unsigned int row, unsigned int col)
 		{
 			unsigned n = get_row_count(), m = get_col_count();
@@ -230,13 +230,14 @@ namespace nonstd
 				}
 			}
 		}
-		//замена элементов диагонали, с началом в [col row] на scalar
+
+		//Г§Г Г¬ГҐГ­Г  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г¤ГЁГ ГЈГ®Г­Г Г«ГЁ, Г± Г­Г Г·Г Г«Г®Г¬ Гў [col row] Г­Г  scalar
 		void diag_replace(unsigned int row, unsigned int col, double scalar = 0)
 		{
 			for (int i = 0; i < get_row_count() - row && i < get_col_count() - col; i++)
 				M[i + col][i + row] = scalar;
 		}
-		//делает обратную матрицу
+		//Г¤ГҐГ«Г ГҐГІ Г®ГЎГ°Г ГІГ­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
 		void inverse()
 		{ 
 			matrix <T> INV(get_row_count(), get_col_count() * 2);
@@ -273,20 +274,20 @@ namespace nonstd
 					M[i][j] = INV(i,j+get_row_count());
 				}
 		}
-		//транспонирование текущей матрицы
+		//ГІГ°Г Г­Г±ГЇГ®Г­ГЁГ°Г®ГўГ Г­ГЁГҐ ГІГҐГЄГіГ№ГҐГ© Г¬Г ГІГ°ГЁГ¶Г»
 		void transpond()
 		{
-			matrix<T> TEMP(get_col_count(), get_row_count()); // Создаем временную матрицу
+			matrix<T> TEMP(get_col_count(), get_row_count()); // Г‘Г®Г§Г¤Г ГҐГ¬ ГўГ°ГҐГ¬ГҐГ­Г­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
 
 			for (int i = 0; i < get_row_count(); i++) {
 				for (int j = 0; j < get_col_count(); j++) {
-					TEMP(j, i) = M[i][j]; // Заполняем временную матрицу транспонированными значениями
+					TEMP(j, i) = M[i][j]; // Г‡Г ГЇГ®Г«Г­ГїГҐГ¬ ГўГ°ГҐГ¬ГҐГ­Г­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі ГІГ°Г Г­Г±ГЇГ®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г¬ГЁ Г§Г­Г Г·ГҐГ­ГЁГїГ¬ГЁ
 				}
 			}
 
-			*this = TEMP; // Копируем значения из временной матрицы в текущую матрицу
+			*this = TEMP; // ГЉГ®ГЇГЁГ°ГіГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГї ГЁГ§ ГўГ°ГҐГ¬ГҐГ­Г­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» Гў ГІГҐГЄГіГ№ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
 		}
-		//ресайз
+		//Г°ГҐГ±Г Г©Г§
 		void resize(unsigned new_row, unsigned new_col)
 		{
 			if (new_col > 0 && new_row > 0)
@@ -295,19 +296,26 @@ namespace nonstd
 				M[i].resize(new_col);
 		}
 
-		void determinant()
+		//todo: Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«ГЁ, Г±Г®ГЎГ±ГІГўГҐГ­Г­Г»ГҐ Г§Г­Г Г·ГҐГ­ГЁГї, []
+	void determinant()
+	{
+		T a = 0;
+		std::string tp = typeid(T).name();
+		if (tp == "int" || tp == "float" || tp == "double" || tp == "long" || tp == "short")
 		{
 		}
+		else throw 1;
+	}
+	//todo: Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«ГЁ, Г±Г®ГЎГ±ГІГўГҐГ­Г­Г»ГҐ Г§Г­Г Г·ГҐГ­ГЁГї
+	//imp: Гў Г¤Г°ГіГЈГ®Г¬ ГґГ Г©Г«ГҐ Г­Г ГЇГЁГ±Г Г­Г® ГЇГ°Г® ГЇГ°Г®ГўГҐГ°ГЄГі Г­ГҐГўГ»Г°Г®Г¦Г¤ГҐГ­Г­Г®Г±ГІГЁ
 
-		//todo: определители, собственные значения, []
-
-		void is_singular() //исходя из определителя
+		void is_singular() //ГЁГ±ГµГ®Г¤Гї ГЁГ§ Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«Гї
 		{}
 
 		~matrix() {}
 	};
 
-	//оператор вывода матрицы
+	//Г®ГЇГҐГ°Г ГІГ®Г° ГўГ»ГўГ®Г¤Г  Г¬Г ГІГ°ГЁГ¶Г»
 	template <typename T>
 	std::ostream& operator<<(std::ostream& os, const matrix<T>& mat)
 	{
@@ -329,9 +337,9 @@ namespace nonstd
 	//class array: public matrix 
 	//{
 	//private:
-	//	std::vector<T> A; // Массив элементов типа Т
+	//	std::vector<T> A; // ГЊГ Г±Г±ГЁГў ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў ГІГЁГЇГ  Г’
 	//public:
-	//	//конструктор массива (матрица - столбец)
+	//	//ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г° Г¬Г Г±Г±ГЁГўГ  (Г¬Г ГІГ°ГЁГ¶Г  - Г±ГІГ®Г«ГЎГҐГ¶)
 	//	array(unsigned int size)
 	//	{
 	//		row_count = size;
