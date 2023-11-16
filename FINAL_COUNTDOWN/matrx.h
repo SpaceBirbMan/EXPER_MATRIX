@@ -1,4 +1,5 @@
 #pragma once
+//#define MTRX_DEBUG
 #include <vector>
 #include <string>
 #include <ostream>
@@ -8,245 +9,294 @@
 #include <time.h>
 #include <typeinfo>
 
-template <typename T>
-T GetRandomNumber(T min, T max)
+namespace nonstd
 {
-	std::random_device rd;   // non-deterministic generator
-	std::mt19937 gen(rd());  // to seed mersenne twister.
-	std::uniform_int_distribution<> dist(min, max); // distribute results between min and max inclusive.
-	return dist(gen) + dist(gen); // pass the generator to the distribution.
-}
+	template <typename T>
+	T GetRandomNumber(T min, T max) {
+		std::random_device rd;   // non-deterministic generator
+		std::mt19937 gen(rd());  // to seed mersenne twister.
 
-//Класс матрицы
-template <typename T>
-class matrix
-{
-
-private:
-	std::vector<std::vector<T>> M; // Матрица элементов типа Т
-
-	unsigned int row_count = 0; // Количество строк
-	unsigned int col_count = 0; // Количество столбцов
-
-public:
-
-	//получить количество строк
-	unsigned int get_row_count() const { return row_count; }
-	//получить количество столбцов
-	unsigned int get_col_count() const { return col_count; }
-	//задать количество строк
-	void set_row_count(unsigned const& row) 
-	{
-		row_count = row;
-		M.resize(row_count, std::vector<T>(col_count));
-	}
-	//задать количество столбцов
-	void set_col_count(unsigned const& col) 
-	{ 
-		col_count = col; 
-		M.resize(row_count, std::vector<T>(col_count));
+		if constexpr (std::is_integral<T>::value) {
+			std::uniform_int_distribution<T> dist(min, max);
+			return dist(gen);
+		}
+		else {
+			std::uniform_real_distribution<T> dist(min, max);
+			return dist(gen);
+		}
 	}
 
-	//конструктор матрицы
-	matrix(unsigned int rows, unsigned int cols)
+	//ГЉГ«Г Г±Г± Г¬Г ГІГ°ГЁГ¶Г»
+	template <typename T>
+	class matrix
 	{
-		row_count = rows;
-		col_count = cols;
-		M.resize(row_count, std::vector<T>(col_count));
-	}
 
-	//конструктор массива (матрица - столбец)
-	matrix(unsigned int size)
-	{
-		row_count = size;
-		col_count = 1;
-		M.resize(row_count, std::vector<T>(col_count));
-	}
+	private:
+		std::vector<std::vector<T>> M; // ГЊГ ГІГ°ГЁГ¶Г  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў ГІГЁГЇГ  Г’
 
-	//пустой конструктор
-	matrix() {}
+		//unsigned int row_count = 0; // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
+		//unsigned int col_count = 0; // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
 
-	//оператор получения значения по индексу
-	T& operator () (int row, int col = -1)
-	{
-		//проверка на правильный col,row > 0
-		if (col > -1) return this->M[row][col];
-		else return this->M[row][0];
-	}
-	//дополнение под оператор скобок
-	const T& operator () (int row, int col = -1) const
-	{
-		if (col > -1) return this->M[row][col];
-		else return this->M[row][0];
-	}
-	//оператор присваивания
-	matrix& operator = (const matrix& R)
-	{
-		if (&R != this && this->row_count >= R.get_row_count() && this->col_count >= R.get_col_count())
+	public:
+
+		//ГЇГ®Г«ГіГ·ГЁГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
+		unsigned int get_row_count() const { if (M.empty()) return 0; else return M.size(); }
+		//ГЇГ®Г«ГіГ·ГЁГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
+		unsigned int get_col_count() const 
 		{
-			for (int i = 0; i < R.get_row_count(); i++)
-				for (int j = 0; j < R.get_col_count(); j++)
-				{
-					this->M[i][j] = R.M[i][j];
-				}
+			if (M.empty()) 
+				return 0; // ГЊГ ГІГ°ГЁГ¶Г  ГЇГіГ±ГІГ , ГЇГ®ГЅГІГ®Г¬Гі Г±ГІГ®Г«ГЎГ¶Г®Гў Г­ГҐГІ
+			return M[0].size(); // Г‚Г®Г§ГўГ°Г Г№Г ГҐГ¬ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Гў ГЇГҐГ°ГўГ®Г© Г±ГІГ°Г®ГЄГҐ
 		}
-		else { throw "INCOMPATBLE_MATRICES"; abort; }
-		return *this;
-	}
-	//оператор умножения на скаляр
-	matrix& operator* (const T scalar)
-	{
-		for (int i = 0; i < row_count; i++)
-			for (int j = 0; j < col_count; j++)
-				M[i][j] = scalar * M[i][j];
-		return *this;
-	}
-	//оператор умножения на матрицу
-	matrix& operator* (matrix& I)
-	{
-		if (this->col_count != I.get_row_count()) {
-			throw "unable_to_mult";
-			exit;
-		}
-
-		matrix result(this->col_count, I.get_row_count());
-
-		for (int i = 0; i < this->col_count; ++i) {
-			for (int j = 0; j < I.row_count; ++j) {
-				double sum = 0.0;
-				for (int k = 0; k < this->row_count; ++k) {
-					sum += this->M[i][k] * I(k, j);
-				}
-				result(i, j) = sum;
-			}
-		}
-		return result;
-	}
-	//оператор деления на скаляр
-	matrix& operator/ (const T scalar)
-	{
-		for (int i = 0; i < row_count; i++)
-			for (int j = 0; j < col_count; j++)
-				M[i][j] = M[i][j] / scalar;
-		return *this;
-	}
-	//оператор деления на матрицу
-	matrix& operator/ (matrix& I)
-	{
-		return *this;
-	}
-	//оператор вычитания одной матрицы из другой
-	matrix& operator- (matrix& I)
-	{
-		for (int i = 0; i < row_count; i++)
-			for (int j = 0; j < col_count; j++)
-				M[i][j] = M[i][j] - I(i, j);
-		return *this;
-	}
-	//оператор заполнения всей матрицы одним элементом
-	void operator << (T inp)
-	{
-		for (int i = 0; i < row_count; i++)
-			for (int j = 0; j < col_count; j++)
-				this->M[i][j] = inp;
-		return;
-	}
-
-	//Возвращает столбец из матрицы //проверка
-	matrix& col_copy(unsigned col)
-	{
-		matrix<T> result(row_count, 1); // Создаем новый объект matrix
-		for (int i = 0; i < row_count; i++) {
-			result(i, 0) = M[i][col];
-		}
-		return result;
-	}
-	//Возвращает строку из матрицы //проверка
-	matrix& row_copy(unsigned row)
-	{
-		matrix<T> result(1, col_count); // Создаем новый объект matrix
-		for (int j = 0; j < col_count; j++) {
-			result(0, j) = M[row][j];
-		}
-		return result;
-	}
-
-	//рандомайзер матрицы
-	void randomize(T min, T max)
-	{
-		for (int i = 0; i < row_count; i++)
+	
+		//ГЇГ®Г«ГіГ·ГЁГІГј Г¬Г ГІГ°ГЁГ¶Гі
+		
+		//Г§Г Г¤Г ГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
+		void set_row_count(unsigned const& row)
 		{
-			for (int j = 0; j < col_count; j++)
+			if (row > 0) M.resize(row, std::vector<T>(get_col_count())); else throw "row < 0";
+		}
+		//Г§Г Г¤Г ГІГј ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
+		void set_col_count(unsigned const& col)
+		{
+			if (col > 0) M.resize(get_row_count(), std::vector<T>(col)); else throw "col < 0";
+		}
+
+		//ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г° Г¬Г ГІГ°ГЁГ¶Г»
+		matrix(unsigned int rows, unsigned int cols)
+		{
+			M.resize(rows, std::vector<T>(cols));
+		}
+
+		matrix(unsigned int size)
+		{
+			M.resize(size, std::vector<T>(1));
+		}
+		//ГЇГіГ±ГІГ®Г© ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г°
+		matrix() {}
+		// ГЉГ®Г­Г±ГІГ°ГіГЄГІГ®Г° ГЁГ§ Г¤ГўГіГ¬ГҐГ°Г­Г®ГЈГ® Г±ГЇГЁГ±ГЄГ 
+		matrix(const std::vector<std::vector<T>>& values) : M(values) {}
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГЇГ®Г«ГіГ·ГҐГ­ГЁГї Г§Г­Г Г·ГҐГ­ГЁГї ГЇГ® ГЁГ­Г¤ГҐГЄГ±Гі
+		T& operator () (int row, int col = -1)
+		{
+			//todo: ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГЇГ°Г ГўГЁГ«ГјГ­Г»Г© col,row > 0
+			if (col > -1) return this->M[row][col];
+			else return this->M[row][0];
+		}
+		//Г¤Г®ГЇГ®Г«Г­ГҐГ­ГЁГҐ ГЇГ®Г¤ Г®ГЇГҐГ°Г ГІГ®Г° Г±ГЄГ®ГЎГ®ГЄ
+		const T& operator () (int row, int col = -1) const
+		{
+			if (col > -1) return this->M[row][col];
+			else return this->M[row][0];
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГЇГ°ГЁГ±ГўГ ГЁГўГ Г­ГЁГї
+		matrix& operator = (const matrix& R)
+		{
+			if (&R != this && this->get_row_count() >= R.get_row_count() && this->get_col_count() >= R.get_col_count())
 			{
-				M[i][j] = min + rand() % (max - min + 1) + static_cast<T>(rand()) / RAND_MAX;
-			}
-		}
-	}
-	//более гикий рандомайзер матрицы
-	void randomize_advanced(T min, T max) { for_each(M.begin(), M.end(), GetRandomNumber(min, max)); }
-	//выводит в строку массив/матрицу
-	std::string to_string()
-	{
-		std::string data = "";
-		{
-			for (int i = 0; i < row_count; i++)
-			{
-				for (int j = 0; j < col_count; j++)
-					data = data + " " + std::to_string(M[i][j]);
-				data = data + "\n"; //перенос строки для создания новвой строки матрицы
-			}
-		}
-		return data; //если нам надо куда-то вывести строку
-	}
-	//антиноль на диагонали (меняет строки местами для дальнейшей работы)
-	void diag_antizero(unsigned int row, unsigned int col)
-	{
-		unsigned n = row_count, m = col_count;
-		matrix <T> Mx(n, m);
-		for (int i = row; i < n; i++)
-		{
-			if (abs(this->M[i][i]) < 0.000001)
-			{
-				for (int ii = 0; ii < col - 1; ii++)
-					if (this->M[i][i] != 0)
+				for (int i = 0; i < R.get_row_count(); i++)
+					for (int j = 0; j < R.get_col_count(); j++)
 					{
-						Mx = this->M[ii][i];
-						this->M[ii][i] = this->M[i][i];
+						this->M[i][j] = R.M[i][j];
 					}
 			}
+			else { throw "INCOMPATBLE_MATRICES"; abort; }
+			return *this;
 		}
-	}
-	//замена элементов диагонали, с началом в [col row] на scalar
-	void diag_replace(unsigned int row, unsigned int col, double scalar = 0)
-	{
-		for (int i = 0; i < row_count - row && i < col_count - col; i++)
-			M[i + col][i + row] = scalar;
-	}
-	//делает обратную матрицу
-	void inverse() //начато, скопируй с другого файла
-	{}
-	//транспонирование
-	void transpond()
-	{
-		matrix<T> TEMP(col_count, row_count); // Создаем временную матрицу
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГіГ¬Г­Г®Г¦ГҐГ­ГЁГї Г­Г  Г±ГЄГ Г«ГїГ°
+		matrix& operator* (const T scalar)
+		{
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+					M[i][j] = scalar * M[i][j];
+			return *this;
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГіГ¬Г­Г®Г¦ГҐГ­ГЁГї Г­Г  Г¬Г ГІГ°ГЁГ¶Гі
+		matrix& operator* (matrix& I)
+		{
+			if (this->col_count != I.get_row_count()) {
+				throw "unable_to_mult";
+				exit;
+			}
 
-		for (int i = 0; i < row_count; i++) {
-			for (int j = 0; j < col_count; j++) {
-				TEMP(j, i) = M[i][j]; // Заполняем временную матрицу транспонированными значениями
+			matrix result(this->col_count, I.get_row_count());
+
+			for (int i = 0; i < this->get_col_count(); ++i) {
+				for (int j = 0; j < I.get_row_count(); ++j) {
+					double sum = 0.0;
+					for (int k = 0; k < this->get_row_count(); ++k) {
+						sum += this->M[i][k] * I(k, j);
+					}
+					result(i, j) = sum;
+				}
+			}
+			return result;
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г¤ГҐГ«ГҐГ­ГЁГї Г­Г  Г±ГЄГ Г«ГїГ°
+		matrix& operator/ (const T scalar)
+		{
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+					M[i][j] = M[i][j] / scalar;
+			return *this;
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г¤ГҐГ«ГҐГ­ГЁГї Г­Г  Г¬Г ГІГ°ГЁГ¶Гі
+		matrix& operator/ (matrix& I)
+		{
+			return *this;
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° ГўГ»Г·ГЁГІГ Г­ГЁГї Г®Г¤Г­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» ГЁГ§ Г¤Г°ГіГЈГ®Г©
+		matrix& operator- (matrix& I)
+		{
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+					M[i][j] = M[i][j] - I(i, j);
+			return *this;
+		}
+		//Г®ГЇГҐГ°Г ГІГ®Г° Г§Г ГЇГ®Г«Г­ГҐГ­ГЁГї ГўГ±ГҐГ© Г¬Г ГІГ°ГЁГ¶Г» Г®Г¤Г­ГЁГ¬ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Г¬
+		void operator << (T inp)
+		{
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+					this->M[i][j] = inp;
+			return;
+		}
+
+		//Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ Г±ГІГ®Г«ГЎГҐГ¶ ГЁГ§ Г¬Г ГІГ°ГЁГ¶Г» //ГЇГ°Г®ГўГҐГ°ГЄГ 
+		matrix& col_copy(unsigned col)
+		{
+			matrix<T> result(get_row_count(), 1); // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© Г®ГЎГєГҐГЄГІ matrix
+			for (int i = 0; i < get_row_count(); i++) {
+				result(i, 0) = M[i][col];
+			}
+			return result;
+		}
+		//Г‚Г®Г§ГўГ°Г Г№Г ГҐГІ Г±ГІГ°Г®ГЄГі ГЁГ§ Г¬Г ГІГ°ГЁГ¶Г» //ГЇГ°Г®ГўГҐГ°ГЄГ 
+		matrix& row_copy(unsigned row)
+		{
+			matrix<T> result(1, get_col_count()); // Г‘Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© Г®ГЎГєГҐГЄГІ matrix
+			for (int j = 0; j < get_col_count(); j++) {
+				result(0, j) = M[row][j];
+			}
+			return result;
+		}
+
+		//Г°Г Г­Г¤Г®Г¬Г Г©Г§ГҐГ° Г¬Г ГІГ°ГЁГ¶Г»
+		void randomize(T min, T max)
+		{
+			for (int i = 0; i < get_row_count(); i++)
+			{
+				for (int j = 0; j < get_col_count(); j++)
+				{
+					M[i][j] = min + static_cast<T>(rand()) / RAND_MAX * (max - min);
+				}
+			}
+		}
+		//ГЎГ®Г«ГҐГҐ ГЈГЁГЄГЁГ© Г°Г Г­Г¤Г®Г¬Г Г©Г§ГҐГ° Г¬Г ГІГ°ГЁГ¶Г»
+		void randomize_advanced(T min, T max) 
+		{ for (int i = 0; i < get_row_count(); i++) 
+			for (int j = 0; j < get_col_count(); j++) 
+				M[i][j] = GetRandomNumber(min, max); 
+		}
+		//ГўГ»ГўГ®Г¤ГЁГІ Гў Г±ГІГ°Г®ГЄГі Г¬Г Г±Г±ГЁГў/Г¬Г ГІГ°ГЁГ¶Гі
+		std::string to_string()
+		{
+			std::string data = "";
+			{
+				for (int i = 0; i < get_row_count(); i++)
+				{
+					for (int j = 0; j < get_col_count(); j++)
+						data = data + " " + std::to_string(M[i][j]);
+					data = data + "\n"; //ГЇГҐГ°ГҐГ­Г®Г± Г±ГІГ°Г®ГЄГЁ Г¤Г«Гї Г±Г®Г§Г¤Г Г­ГЁГї Г­Г®ГўГўГ®Г© Г±ГІГ°Г®ГЄГЁ Г¬Г ГІГ°ГЁГ¶Г»
+				}
+			}
+			return data; //ГҐГ±Г«ГЁ Г­Г Г¬ Г­Г Г¤Г® ГЄГіГ¤Г -ГІГ® ГўГ»ГўГҐГ±ГІГЁ Г±ГІГ°Г®ГЄГі
+		}
+		//Г Г­ГІГЁГ­Г®Г«Гј Г­Г  Г¤ГЁГ ГЈГ®Г­Г Г«ГЁ (Г¬ГҐГ­ГїГҐГІ Г±ГІГ°Г®ГЄГЁ Г¬ГҐГ±ГІГ Г¬ГЁ Г¤Г«Гї Г¤Г Г«ГјГ­ГҐГ©ГёГҐГ© Г°Г ГЎГ®ГІГ»)
+		void diag_antizero(unsigned int row, unsigned int col)
+		{
+			unsigned n = get_row_count(), m = get_col_count();
+			matrix <T> Mx(n, m);
+			for (int i = row; i < n; i++)
+			{
+				if (abs(this->M[i][i]) < 0.000001)
+				{
+					for (int ii = 0; ii < col - 1; ii++)
+						if (this->M[i][i] != 0)
+						{
+							Mx = this->M[ii][i];
+							this->M[ii][i] = this->M[i][i];
+						}
+				}
 			}
 		}
 
-		*this = TEMP; // Копируем значения из временной матрицы в текущую матрицу
-	}
-	//ресайз
-	void resize(unsigned new_row, unsigned new_col = 0)
-	{
-		set_row_count(new_row);
-		if (new_col > 0)
-			set_col_count(new_col);
-		M.resize(new_row, std::vector<T>(new_col));
-	}
+		//Г§Г Г¬ГҐГ­Г  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г¤ГЁГ ГЈГ®Г­Г Г«ГЁ, Г± Г­Г Г·Г Г«Г®Г¬ Гў [col row] Г­Г  scalar
+		void diag_replace(unsigned int row, unsigned int col, double scalar = 0)
+		{
+			for (int i = 0; i < get_row_count() - row && i < get_col_count() - col; i++)
+				M[i + col][i + row] = scalar;
+		}
+		//Г¤ГҐГ«Г ГҐГІ Г®ГЎГ°Г ГІГ­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
+		void inverse()
+		{ 
+			matrix <T> INV(get_row_count(), get_col_count() * 2);
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+				{
+					INV(i, j) = M[i][j];
+					INV(i,i+get_row_count()) = 1;
+				}
 
+			for (int k = 0; k < get_row_count(); k++)
+			{
+				for (int i = 0; i < get_row_count(); i++)
+					for (int j = k + 1; j < 2 * get_row_count(); j++)
+						if (i != k)
+							INV(i, j) = (INV(i, j) * INV(k, k) - INV(k, j) * INV(i, k)) / INV(k, k);
+
+				for (int i = 0; i < get_row_count(); i++)
+					if (i != k)
+						INV(i, k) = 0;
+
+				for (int j = 2 * get_row_count() - 1; j >= k; j--)
+					INV(k, j) = INV(k, j) / INV(k, k);
+#ifdef MTRX_DEBUG
+				std::cout << INV << std::endl;
+#endif // MTRX_DEBUG
+				
+			}
+
+			
+			for (int i = 0; i < get_row_count(); i++)
+				for (int j = 0; j < get_col_count(); j++)
+				{
+					M[i][j] = INV(i,j+get_row_count());
+				}
+		}
+		//ГІГ°Г Г­Г±ГЇГ®Г­ГЁГ°Г®ГўГ Г­ГЁГҐ ГІГҐГЄГіГ№ГҐГ© Г¬Г ГІГ°ГЁГ¶Г»
+		void transpond()
+		{
+			matrix<T> TEMP(get_col_count(), get_row_count()); // Г‘Г®Г§Г¤Г ГҐГ¬ ГўГ°ГҐГ¬ГҐГ­Г­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
+
+			for (int i = 0; i < get_row_count(); i++) {
+				for (int j = 0; j < get_col_count(); j++) {
+					TEMP(j, i) = M[i][j]; // Г‡Г ГЇГ®Г«Г­ГїГҐГ¬ ГўГ°ГҐГ¬ГҐГ­Г­ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі ГІГ°Г Г­Г±ГЇГ®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г¬ГЁ Г§Г­Г Г·ГҐГ­ГЁГїГ¬ГЁ
+				}
+			}
+
+			*this = TEMP; // ГЉГ®ГЇГЁГ°ГіГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГї ГЁГ§ ГўГ°ГҐГ¬ГҐГ­Г­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» Гў ГІГҐГЄГіГ№ГіГѕ Г¬Г ГІГ°ГЁГ¶Гі
+		}
+		//Г°ГҐГ±Г Г©Г§
+		void resize(unsigned new_row, unsigned new_col)
+		{
+			if (new_col > 0 && new_row > 0)
+				M.resize(new_row);
+			for (int i = 0; i < new_row; i++)
+				M[i].resize(new_col);
+		}
+
+		//todo: Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«ГЁ, Г±Г®ГЎГ±ГІГўГҐГ­Г­Г»ГҐ Г§Г­Г Г·ГҐГ­ГЁГї, []
 	void determinant()
 	{
 		T a = 0;
@@ -256,23 +306,46 @@ public:
 		}
 		else throw 1;
 	}
-	//todo: определители, собственные значения
-	//imp: в другом файле написано про проверку невырожденности
+	//todo: Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«ГЁ, Г±Г®ГЎГ±ГІГўГҐГ­Г­Г»ГҐ Г§Г­Г Г·ГҐГ­ГЁГї
+	//imp: Гў Г¤Г°ГіГЈГ®Г¬ ГґГ Г©Г«ГҐ Г­Г ГЇГЁГ±Г Г­Г® ГЇГ°Г® ГЇГ°Г®ГўГҐГ°ГЄГі Г­ГҐГўГ»Г°Г®Г¦Г¤ГҐГ­Г­Г®Г±ГІГЁ
 
-	~matrix() {}
-};
+		void is_singular() //ГЁГ±ГµГ®Г¤Гї ГЁГ§ Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГҐГ«Гї
+		{}
 
-//оператор вывода матрицы
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const matrix<T>& mat)
-{
-	for (int i = 0; i < mat.get_row_count(); i++)
+		~matrix() {}
+	};
+
+	//Г®ГЇГҐГ°Г ГІГ®Г° ГўГ»ГўГ®Г¤Г  Г¬Г ГІГ°ГЁГ¶Г»
+	template <typename T>
+	std::ostream& operator<<(std::ostream& os, const matrix<T>& mat)
 	{
-		for (int j = 0; j < mat.get_col_count(); j++)
+		unsigned setw = 5;
+		if (typeid(T).name() == "int") setw = 3; else setw = 10;
+		std::fixed;
+		for (int i = 0; i < mat.get_row_count(); i++)
 		{
-			os << std::setw(5) << mat(i, j) << std::setfill(' ');
+			for (int j = 0; j < mat.get_col_count(); j++)
+			{
+				os << std::setw(setw) << std::setprecision(6) << mat(i, j) << std::setfill(' ');
+			}
+			os << std::endl;
 		}
-		os << std::endl;
+		return os;
 	}
-	return os;
+
+	//template <typename T>
+	//class array: public matrix 
+	//{
+	//private:
+	//	std::vector<T> A; // ГЊГ Г±Г±ГЁГў ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў ГІГЁГЇГ  Г’
+	//public:
+	//	//ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г° Г¬Г Г±Г±ГЁГўГ  (Г¬Г ГІГ°ГЁГ¶Г  - Г±ГІГ®Г«ГЎГҐГ¶)
+	//	array(unsigned int size)
+	//	{
+	//		row_count = size;
+	//		col_count = 1;
+	//		M.resize(row_count, std::vector<T>(col_count));
+	//		M[0] = A;
+	//	}
+	//};
 }
